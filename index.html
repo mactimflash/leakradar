@@ -2,247 +2,289 @@
 <html lang="vi">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>LeakRadar — GLOBAL Analytics</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>LeakRadar — GLOBAL SaaS Dashboard</title>
+  <meta name="color-scheme" content="dark light" />
   <style>
     :root{
-      --bg:#070a14;
-      --card:rgba(255,255,255,.06);
-      --card2:rgba(255,255,255,.035);
-      --line:rgba(255,255,255,.10);
-      --txt:rgba(255,255,255,.92);
-      --muted:rgba(255,255,255,.64);
-      --shadow:0 20px 60px rgba(0,0,0,.45);
-      --r:18px;
+      --bg:#0b1020;
+      --panel:#0f1733;
+      --panel2:#0c1430;
+      --text:#e8ecff;
+      --muted:#a9b3e6;
+      --line:rgba(255,255,255,.08);
+      --good:#3ddc97;
+      --warn:#ffcc66;
+      --high:#ff7a59;
+      --crit:#ff3b3b;
+      --chip:#16214a;
+      --shadow: 0 12px 40px rgba(0,0,0,.35);
+      --radius:18px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     }
     *{box-sizing:border-box}
     body{
       margin:0;
-      font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
-      color:var(--txt);
-      background:
-        radial-gradient(1200px 800px at 70% -10%, rgba(0,255,255,.12), transparent 60%),
-        radial-gradient(900px 700px at -10% 20%, rgba(255,0,255,.10), transparent 60%),
-        radial-gradient(900px 700px at 60% 120%, rgba(0,255,120,.08), transparent 60%),
-        var(--bg);
+      font-family:var(--sans);
+      background: radial-gradient(1200px 600px at 20% 0%, rgba(83,121,255,.25), transparent 60%),
+                  radial-gradient(900px 500px at 90% 10%, rgba(255,90,90,.18), transparent 60%),
+                  linear-gradient(180deg, #070a14, #0b1020 40%, #070a14);
+      color:var(--text);
     }
     a{color:inherit}
-    .wrap{max-width:1280px;margin:0 auto;padding:18px 14px 28px}
-    .top{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:14px}
-    .brand{
-      display:flex;gap:10px;align-items:center;
-      padding:12px 14px;border:1px solid var(--line);
-      border-radius:999px;background:var(--card);box-shadow:var(--shadow)
+    .wrap{max-width:1180px;margin:0 auto;padding:18px 16px 48px}
+    header{
+      display:flex;gap:14px;align-items:center;justify-content:space-between;
+      padding:18px 18px;
+      border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      position:sticky;top:10px;z-index:10;
+      backdrop-filter: blur(10px);
     }
-    .dot{
-      width:10px;height:10px;border-radius:50%;
-      background:linear-gradient(135deg, rgba(0,255,255,1), rgba(255,0,255,1));
-      box-shadow:0 0 18px rgba(0,255,255,.35)
+    .brand{display:flex;flex-direction:column;gap:2px}
+    .brand h1{margin:0;font-size:16px;letter-spacing:.3px}
+    .brand .sub{font-size:12px;color:var(--muted)}
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      font-size:12px;padding:8px 10px;border-radius:999px;
+      background:rgba(255,255,255,.06);border:1px solid var(--line);
+      color:var(--muted);
+      white-space:nowrap;
     }
-    .brand h1{font-size:14px;margin:0;letter-spacing:.6px}
-    .brand small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
-    .muted{color:var(--muted)}
-    .grid{display:grid;grid-template-columns:1.1fr .9fr;gap:12px}
-    @media(max-width:980px){.grid{grid-template-columns:1fr}}
+    .dot{width:8px;height:8px;border-radius:50%}
+    .dot.ok{background:var(--good)}
+    .dot.bad{background:var(--crit)}
+    .grid{
+      margin-top:16px;
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:14px;
+      align-items:start;
+    }
+    @media (max-width: 980px){
+      header{position:static}
+      .grid{grid-template-columns:1fr}
+    }
     .card{
       border:1px solid var(--line);
-      background:linear-gradient(180deg, var(--card), var(--card2));
-      border-radius:var(--r);
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border-radius:var(--radius);
       box-shadow:var(--shadow);
-      padding:14px
+      padding:14px;
     }
-    .card h2{font-size:13px;margin:0 0 10px 0;color:rgba(255,255,255,.86);letter-spacing:.4px}
-    label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
-    input,select,button,textarea{
+    .card h2{margin:0 0 10px;font-size:13px;color:var(--muted);font-weight:600;letter-spacing:.35px;text-transform:uppercase}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    .col{flex:1;min-width:220px}
+    label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px}
+    input, textarea, select{
       width:100%;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(0,0,0,.25);
-      color:var(--txt);
+      border-radius:14px;
+      border:1px solid var(--line);
       padding:11px 12px;
-      outline:none
+      background:rgba(0,0,0,.18);
+      color:var(--text);
+      outline:none;
     }
-    textarea{min-height:118px;resize:vertical}
-    button{
+    textarea{min-height:120px;resize:vertical;font-family:var(--mono);font-size:12px;line-height:1.35}
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      padding:10px 12px;border-radius:14px;
       cursor:pointer;
-      background:linear-gradient(135deg, rgba(0,255,255,.16), rgba(255,0,255,.14));
-      border:1px solid rgba(255,255,255,.20);
-      font-weight:900;
-      letter-spacing:.2px;
-    }
-    button:hover{filter:brightness(1.07)}
-    .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
-    .btns button{flex:1 1 160px}
-    .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:10px}
-    @media(max-width:760px){.kpis{grid-template-columns:repeat(2,1fr)}}
-    .kpi{padding:12px;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18)}
-    .kpi b{display:block;font-size:16px}
-    .kpi span{display:block;color:var(--muted);font-size:12px;margin-top:4px}
-    .split{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-    @media(max-width:760px){.split{grid-template-columns:1fr}}
-    .list{border:1px solid rgba(255,255,255,.12);border-radius:16px;overflow:hidden}
-    .row{
-      display:flex;justify-content:space-between;gap:10px;
-      padding:10px 12px;border-top:1px solid rgba(255,255,255,.10);
+      user-select:none;
+      text-decoration:none;
+      font-weight:600;
       font-size:13px;
+      transition:transform .06s ease, background .12s ease;
     }
-    .row:first-child{border-top:none}
-    .row .left{min-width:0;flex:1}
-    .row .right{flex:0 0 auto;text-align:right;white-space:nowrap}
-    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
-    .pill{
-      display:inline-flex;align-items:center;gap:6px;
-      padding:6px 10px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.18);
-      font-size:12px;font-weight:900;letter-spacing:.2px
+    .btn:hover{background:rgba(255,255,255,.1)}
+    .btn:active{transform:translateY(1px)}
+    .btn.primary{
+      background:linear-gradient(180deg, rgba(83,121,255,.55), rgba(83,121,255,.18));
+      border-color: rgba(83,121,255,.45);
     }
-    .crit{background:rgba(255,0,80,.14)}
-    .high{background:rgba(255,160,0,.14)}
-    .med{background:rgba(255,255,255,.10)}
-    .ok{background:rgba(0,255,160,.10)}
+    .btn.danger{
+      background:linear-gradient(180deg, rgba(255,59,59,.45), rgba(255,59,59,.12));
+      border-color: rgba(255,59,59,.35);
+    }
+    .btn.small{padding:8px 10px;font-size:12px;border-radius:12px}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .muted{color:var(--muted);font-size:12px}
+    .mono{font-family:var(--mono)}
+    .sep{height:1px;background:var(--line);margin:12px 0}
+    .chips{display:flex;gap:8px;flex-wrap:wrap}
+    .chip{
+      font-size:12px;padding:7px 10px;border-radius:999px;
+      background:rgba(22,33,74,.75);
+      border:1px solid var(--line);
+      color:var(--muted);
+      cursor:pointer;
+      user-select:none;
+    }
+    .chip.active{color:var(--text);border-color:rgba(83,121,255,.6);background:rgba(83,121,255,.18)}
+    .kpi{
+      display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px
+    }
+    @media (max-width:980px){.kpi{grid-template-columns:repeat(2,1fr)}}
+    .k{
+      padding:12px;border:1px solid var(--line);border-radius:16px;background:rgba(0,0,0,.16)
+    }
+    .k .n{font-size:20px;font-weight:800}
+    .k .t{font-size:12px;color:var(--muted);margin-top:2px}
+    .badge{
+      font-size:12px;padding:5px 8px;border-radius:999px;border:1px solid var(--line);background:rgba(0,0,0,.18)
+    }
+    .b-ok{color:var(--good)}
+    .b-med{color:var(--warn)}
+    .b-high{color:var(--high)}
+    .b-crit{color:var(--crit)}
+    table{width:100%;border-collapse:separate;border-spacing:0 8px}
+    th{
+      font-size:12px;color:var(--muted);font-weight:600;text-align:left;padding:0 10px
+    }
+    td{
+      background:rgba(0,0,0,.16);
+      border-top:1px solid var(--line);
+      border-bottom:1px solid var(--line);
+      padding:10px;
+      font-size:12px;
+      vertical-align:top;
+    }
+    td:first-child{border-left:1px solid var(--line);border-top-left-radius:14px;border-bottom-left-radius:14px}
+    td:last-child{border-right:1px solid var(--line);border-top-right-radius:14px;border-bottom-right-radius:14px}
+    .right{display:flex;justify-content:flex-end}
     .toast{
-      position:fixed;left:12px;right:12px;bottom:14px;max-width:1280px;margin:0 auto;
-      padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.16);
-      background:rgba(0,0,0,.45);display:none
+      position:fixed;bottom:18px;left:50%;transform:translateX(-50%);
+      background:rgba(0,0,0,.7);border:1px solid var(--line);
+      padding:10px 12px;border-radius:12px;color:var(--text);
+      max-width:94vw;box-shadow:var(--shadow);display:none;
+      font-size:12px
     }
-    .mini{font-size:12px;color:var(--muted);line-height:1.6;margin:0}
-    pre{margin:0;white-space:pre-wrap}
-    table{
-      width:100%;border-collapse:collapse;overflow:hidden;border-radius:16px;
-      border:1px solid rgba(255,255,255,.12);
-      background:rgba(0,0,0,.18)
+    .note{font-size:12px;color:var(--muted);line-height:1.35}
+    .list{display:flex;flex-direction:column;gap:8px}
+    .item{
+      padding:10px;border:1px solid var(--line);border-radius:16px;background:rgba(0,0,0,.16)
     }
-    th,td{padding:10px 10px;border-top:1px solid rgba(255,255,255,.10);font-size:13px;vertical-align:top}
-    th{color:rgba(255,255,255,.82);text-align:left;font-size:12px;letter-spacing:.3px}
-    tr:first-child th{border-top:none}
-    .nowrap{white-space:nowrap}
-    .clip{
-      display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
-      overflow:hidden
-    }
-    .searchRow{display:grid;grid-template-columns:1.1fr .9fr .8fr;gap:10px}
-    @media(max-width:760px){.searchRow{grid-template-columns:1fr}}
-    .hint{margin-top:10px}
+    .item .top{display:flex;gap:10px;align-items:center;justify-content:space-between}
+    .item .title{font-weight:800;font-size:13px}
+    .item .meta{font-size:12px;color:var(--muted);margin-top:4px}
+    .dangerText{color:var(--crit)}
+    .okText{color:var(--good)}
   </style>
 </head>
 
 <body>
 <div class="wrap">
-  <div class="top">
+  <header>
     <div class="brand">
-      <div class="dot"></div>
-      <div>
-        <h1>LeakRadar — GLOBAL Analytics</h1>
-        <small>All chats/users • Trends • Top targets • Top leaks • Live feed</small>
-      </div>
+      <h1>LeakRadar — GLOBAL SaaS</h1>
+      <div class="sub">Worker + KV + Shodan · Dashboard gọi thẳng <span class="mono">/api/scan</span> & <span class="mono">/api/bulk</span></div>
     </div>
-    <div class="muted" id="clock">—</div>
-  </div>
+    <div class="pill" id="healthPill">
+      <span class="dot bad" id="healthDot"></span>
+      <span id="healthText">Disconnected</span>
+    </div>
+  </header>
 
   <div class="grid">
     <!-- LEFT -->
     <div class="card">
-      <h2>Quét nhanh (GLOBAL)</h2>
+      <h2>Scan (SaaS API)</h2>
 
-      <label>Nhập IP / Domain (mỗi dòng 1 target)</label>
-      <textarea id="targets" placeholder="113.173.124.140&#10;example.com"></textarea>
-
-      <div class="btns">
-        <button id="btnScan">🚀 Scan ngay</button>
-        <button id="btnRefresh">🔄 Refresh</button>
-        <button id="btnExport">⬇️ Export CSV (GLOBAL)</button>
-      </div>
-
-      <p class="mini hint">
-        • Dashboard này hiển thị <b>toàn bộ</b> scan/bulk từ Telegram (DM + group).<br/>
-        • Scan ngay sẽ trigger <span class="mono">/bulk</span> qua endpoint <span class="mono">/telegram</span> (MVP).<br/>
-        • Muốn sạch hơn: tách endpoint <span class="mono">/api/scan</span> riêng (mình có thể refactor tiếp).
-      </p>
-
-      <p class="mini" id="status">—</p>
-
-      <div class="kpis">
-        <div class="kpi"><b id="kTotal">—</b><span>Total scans</span></div>
-        <div class="kpi"><b id="kCrit">—</b><span>Critical</span></div>
-        <div class="kpi"><b id="kHigh">—</b><span>High</span></div>
-        <div class="kpi"><b id="kMed">—</b><span>Medium</span></div>
-        <div class="kpi"><b id="kOk">—</b><span>OK</span></div>
-      </div>
-
-      <div class="split">
-        <div>
-          <h2 style="margin-top:12px">Top targets</h2>
-          <div class="list" id="topTargets"></div>
+      <div class="row">
+        <div class="col">
+          <label>Target (domain / IP / URL)</label>
+          <input id="targetInput" placeholder="example.com hoặc 1.2.3.4 hoặc https://example.com" />
+          <div class="muted" style="margin-top:8px">
+            Gợi ý gần đây: <span id="recentChips" class="chips"></span>
+          </div>
         </div>
-        <div>
-          <h2 style="margin-top:12px">Top leak paths</h2>
-          <div class="list" id="topLeaks"></div>
+        <div class="col">
+          <label>Filters (GLOBAL feed)</label>
+          <div class="chips" style="margin-top:2px">
+            <div class="chip active" data-risk="ALL">ALL</div>
+            <div class="chip" data-risk="CRITICAL">CRITICAL</div>
+            <div class="chip" data-risk="HIGH">HIGH</div>
+            <div class="chip" data-risk="MEDIUM">MEDIUM</div>
+            <div class="chip" data-risk="OK">OK</div>
+          </div>
+          <div style="margin-top:10px">
+            <input id="searchInput" placeholder="Search domain / org / ASN / leak path..." />
+          </div>
         </div>
       </div>
 
-      <h2 style="margin-top:12px">Xu hướng 30 ngày (scans / critical)</h2>
-      <div class="list" id="trend"></div>
-
-      <h2 style="margin-top:12px">Live Results Feed (mới nhất)</h2>
-      <div class="searchRow">
-        <div>
-          <label>Tìm theo domain / IP / user / chat</label>
-          <input id="q" placeholder="vd: example.com hoặc @username hoặc group name" />
-        </div>
-        <div>
-          <label>Lọc Risk</label>
-          <select id="risk">
-            <option value="">Tất cả</option>
-            <option value="CRITICAL">CRITICAL</option>
-            <option value="HIGH">HIGH</option>
-            <option value="MEDIUM">MEDIUM</option>
-            <option value="OK">OK</option>
-          </select>
-        </div>
-        <div>
-          <label>Giới hạn</label>
-          <select id="limit">
-            <option value="100">100</option>
-            <option value="200" selected>200</option>
-            <option value="300">300</option>
-            <option value="500">500</option>
-          </select>
-        </div>
+      <div class="toolbar" style="margin-top:12px">
+        <button class="btn primary" id="scanBtn">🔎 Scan now</button>
+        <button class="btn" id="refreshGlobalBtn">♻️ Refresh GLOBAL</button>
+        <button class="btn small" id="exportGlobalBtn">⬇️ Export GLOBAL CSV</button>
+        <span class="muted" id="scanStatus">Ready</span>
       </div>
 
-      <div style="margin-top:10px;overflow:auto">
-        <table id="tbl">
+      <div class="sep"></div>
+
+      <h2>Quick result</h2>
+      <div id="quickResult" class="note">Chưa có kết quả. Bấm “Scan now”.</div>
+
+      <div class="sep"></div>
+
+      <h2>GLOBAL results (all users/chats)</h2>
+      <div class="note">Hiển thị theo thời gian mới nhất. Filter risk + search ở phía trên.</div>
+      <div style="margin-top:8px;overflow:auto">
+        <table>
           <thead>
             <tr>
-              <th class="nowrap">Time</th>
+              <th>Time</th>
               <th>Target</th>
-              <th class="nowrap">Risk</th>
-              <th class="nowrap">IP</th>
-              <th class="nowrap">Ports</th>
-              <th>Leaks</th>
-              <th>User/Chat</th>
+              <th>Risk</th>
+              <th>IP / Ports</th>
+              <th>Findings</th>
+              <th>Meta</th>
             </tr>
           </thead>
-          <tbody id="tbody">
-            <tr><td colspan="7" class="muted">—</td></tr>
-          </tbody>
+          <tbody id="globalTbody"></tbody>
         </table>
       </div>
-
     </div>
 
     <!-- RIGHT -->
     <div class="card">
-      <h2>Activity log (GLOBAL)</h2>
-      <p class="mini">Ghi lại hành vi: command / bulk count / result risk / leaks. Dùng để phân tích xu hướng.</p>
-      <div class="list" id="activity"></div>
+      <h2>GLOBAL analytics</h2>
 
-      <h2 style="margin-top:12px">Gợi ý phân tích</h2>
-      <pre class="mini" id="insight">—</pre>
+      <div class="kpi">
+        <div class="k"><div class="n" id="kTotal">—</div><div class="t">Total scans</div></div>
+        <div class="k"><div class="n dangerText" id="kCritical">—</div><div class="t">CRITICAL</div></div>
+        <div class="k"><div class="n" id="kHigh">—</div><div class="t">HIGH</div></div>
+        <div class="k"><div class="n" id="kMed">—</div><div class="t">MEDIUM</div></div>
+      </div>
 
-      <h2 style="margin-top:12px">Sức khoẻ kết nối</h2>
-      <div class="list" id="health"></div>
-      <p class="mini">Nếu bảng vẫn trống: Worker chưa có API <span class="mono">/api/global/*</span> hoặc token sai.</p>
+      <div class="sep"></div>
+
+      <h2>Bulk (SaaS API)</h2>
+      <label>Targets (mỗi dòng 1 target hoặc phân tách dấu phẩy)</label>
+      <textarea id="bulkTextarea" placeholder="a.com&#10;b.com&#10;1.2.3.4"></textarea>
+
+      <div class="toolbar" style="margin-top:10px">
+        <button class="btn primary" id="bulkStartBtn">🚀 Start bulk</button>
+        <button class="btn" id="bulkPollBtn">⏱ Check status</button>
+        <button class="btn small" id="bulkExportBtn">⬇️ Export batch CSV</button>
+        <span class="muted" id="bulkStatus">No batch</span>
+      </div>
+
+      <div class="sep"></div>
+
+      <h2>GLOBAL activity (latest)</h2>
+      <div class="list" id="activityList"></div>
+
+      <div class="sep"></div>
+
+      <h2>Config (fixed)</h2>
+      <div class="note mono" id="cfgBox"></div>
     </div>
   </div>
 </div>
@@ -250,284 +292,432 @@
 <div class="toast" id="toast"></div>
 
 <script>
-/** =========================
- *  FIXED CONFIG (ADMIN SET)
- *  ========================= */
-const FIXED_WORKER_URL = "https://leakradar.starlinksatellitewifi.workers.dev";
-const DASHBOARD_TOKEN  = "dash_9k23jf8sk29dk";
+/** =======================
+ *  FIX THESE TWO CONSTANTS
+ *  ======================= */
+const FIXED_WORKER_URL = "https://YOUR-WORKER.workers.dev"; // <-- change
+const DASHBOARD_TOKEN  = "YOUR_DASHBOARD_TOKEN";            // <-- change
 
-/** MVP trigger scan: dùng /telegram giả update /bulk
- *  - Worker cần CORS on /telegram
- *  - Worker sẽ chạy bulk runner và ghi vào GLOBAL store
- */
-const GLOBAL_CHAT_ID_FOR_TRIGGER = "-1002345678901"; // dùng 1 chatId bất kỳ để kick runner (không phải workspace nữa)
-
-/** ========================= */
+/** UI State */
+let currentRiskFilter = "ALL";
+let globalCache = [];
+let currentBatchId = localStorage.getItem("leakradar_batchId") || "";
+let bulkPollTimer = null;
 
 const $ = (id)=>document.getElementById(id);
 
-function nowClock(){
-  $("clock").textContent = new Date().toLocaleString("vi-VN");
-}
-setInterval(nowClock, 800); nowClock();
+init();
 
-function toast(msg){
-  const t=$("toast");
-  t.textContent=msg;
-  t.style.display="block";
-  clearTimeout(window.__t);
-  window.__t=setTimeout(()=>t.style.display="none", 2600);
+async function init(){
+  $("cfgBox").textContent =
+`WORKER: ${FIXED_WORKER_URL}
+AUTH : Bearer ${mask(DASHBOARD_TOKEN)}
+API  : /api/scan /api/bulk /api/global/*`;
+
+  bindEvents();
+  renderRecentChips();
+  await healthCheck();
+  await refreshGlobalAll();
+  if(currentBatchId) {
+    toast("Restored batchId: " + currentBatchId);
+    await bulkStatusOnce();
+  }
 }
 
-function esc(s){
-  return String(s??"")
-    .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;").replaceAll("'","&#039;");
-}
+function bindEvents(){
+  $("scanBtn").onclick = runScan;
+  $("refreshGlobalBtn").onclick = refreshGlobalAll;
+  $("exportGlobalBtn").onclick = exportGlobalCSV;
 
-function pill(r){
-  const cls = r==="CRITICAL"?"crit":r==="HIGH"?"high":r==="MEDIUM"?"med":"ok";
-  return `<span class="pill ${cls}">${esc(r||"OK")}</span>`;
+  $("bulkStartBtn").onclick = startBulk;
+  $("bulkPollBtn").onclick = bulkStatusOnce;
+  $("bulkExportBtn").onclick = exportBatchCSV;
+
+  $("searchInput").addEventListener("input", renderGlobalTable);
+
+  // risk chips
+  document.querySelectorAll(".chip[data-risk]").forEach(ch=>{
+    ch.addEventListener("click", ()=>{
+      document.querySelectorAll(".chip[data-risk]").forEach(x=>x.classList.remove("active"));
+      ch.classList.add("active");
+      currentRiskFilter = ch.dataset.risk;
+      renderGlobalTable();
+    });
+  });
+
+  // enter to scan
+  $("targetInput").addEventListener("keydown", (e)=>{
+    if(e.key==="Enter") runScan();
+  });
 }
 
 function authHeaders(){
-  return { "Authorization": "Bearer " + DASHBOARD_TOKEN };
+  return {
+    "content-type":"application/json",
+    "authorization": `Bearer ${DASHBOARD_TOKEN}`
+  };
 }
 
-function apiBase(){
-  return FIXED_WORKER_URL.replace(/\/+$/,"");
+async function healthCheck(){
+  try{
+    const r = await fetch(FIXED_WORKER_URL + "/api/health", { headers: authHeaders() });
+    const j = await r.json().catch(()=>null);
+    if(!r.ok || !j || !j.ok) throw new Error(j?.error || ("HTTP "+r.status));
+    setHealth(true, "Connected");
+  }catch(e){
+    setHealth(false, "Disconnected");
+  }
 }
 
-async function fetchJSON(path){
-  const r = await fetch(apiBase()+path, { headers: { ...authHeaders() } });
-  const j = await r.json().catch(()=>({ok:false,error:"bad json"}));
-  if(!r.ok) throw new Error(j.error || ("HTTP "+r.status));
+function setHealth(ok, text){
+  $("healthText").textContent = text;
+  $("healthDot").className = "dot " + (ok ? "ok" : "bad");
+}
+
+/** =======================
+ *  Scan
+ *  ======================= */
+async function runScan(){
+  const raw = $("targetInput").value.trim();
+  if(!raw) return toast("Nhập target trước đã.");
+  $("scanStatus").textContent = "Scanning...";
+  $("quickResult").textContent = "⏳ Running scan...";
+
+  saveRecent(raw);
+  renderRecentChips();
+
+  try{
+    const r = await fetch(FIXED_WORKER_URL + "/api/scan", {
+      method:"POST",
+      headers: authHeaders(),
+      body: JSON.stringify({ target: raw, actor: "dashboard" })
+    });
+    const j = await r.json().catch(()=>null);
+    if(!r.ok || !j?.ok) throw new Error(j?.error || ("HTTP "+r.status));
+    const res = j.result;
+    $("scanStatus").textContent = j.cached ? "Done (cache)" : "Done";
+    $("quickResult").innerHTML = renderQuick(res, j.cached);
+
+    // refresh global feed to show immediately
+    await refreshGlobalAll(true);
+  }catch(e){
+    $("scanStatus").textContent = "Error";
+    $("quickResult").innerHTML = `<span class="dangerText">❌ ${escapeHtml(String(e.message||e))}</span>`;
+  }
+}
+
+/** =======================
+ *  Bulk
+ *  ======================= */
+function parseTargets(text){
+  return text.split(/[\n,]+/).map(x=>x.trim()).filter(Boolean);
+}
+
+async function startBulk(){
+  const text = $("bulkTextarea").value.trim();
+  const targets = parseTargets(text);
+  if(!targets.length) return toast("Chưa có targets trong bulk.");
+
+  $("bulkStatus").textContent = "Starting...";
+  clearInterval(bulkPollTimer);
+
+  try{
+    const r = await fetch(FIXED_WORKER_URL + "/api/bulk",{
+      method:"POST",
+      headers: authHeaders(),
+      body: JSON.stringify({ targets, actor:"dashboard" })
+    });
+    const j = await r.json().catch(()=>null);
+    if(!r.ok || !j?.ok) throw new Error(j?.error || ("HTTP "+r.status));
+
+    currentBatchId = j.batchId;
+    localStorage.setItem("leakradar_batchId", currentBatchId);
+    toast("Bulk started. batchId=" + currentBatchId);
+    $("bulkStatus").textContent = `batchId=${currentBatchId} total=${j.total}`;
+
+    // auto poll every 2.5s
+    bulkPollTimer = setInterval(bulkStatusOnce, 2500);
+  }catch(e){
+    $("bulkStatus").textContent = "Error";
+    toast("Bulk error: " + String(e.message||e));
+  }
+}
+
+async function bulkStatusOnce(){
+  if(!currentBatchId){
+    $("bulkStatus").textContent = "No batch";
+    return;
+  }
+  try{
+    const r = await fetch(FIXED_WORKER_URL + `/api/bulk/status?batchId=${encodeURIComponent(currentBatchId)}`, {
+      headers: authHeaders()
+    });
+    const j = await r.json().catch(()=>null);
+    if(!r.ok || !j?.ok) throw new Error(j?.error || ("HTTP "+r.status));
+
+    const p = j.progress;
+    const remaining = j.remaining ?? 0;
+    if(!p){
+      $("bulkStatus").textContent = "No progress";
+      return;
+    }
+    $("bulkStatus").textContent = `Progress ${p.done}/${p.total} (remaining ${remaining})`;
+
+    // when done, stop polling and refresh global
+    if(p.done >= p.total && remaining === 0){
+      clearInterval(bulkPollTimer);
+      bulkPollTimer = null;
+      toast("Bulk done. Refreshing GLOBAL...");
+      await refreshGlobalAll(true);
+    }
+  }catch(e){
+    $("bulkStatus").textContent = "Error";
+  }
+}
+
+function exportBatchCSV(){
+  if(!currentBatchId) return toast("Chưa có batchId.");
+  const url = FIXED_WORKER_URL + `/api/bulk/export.csv?batchId=${encodeURIComponent(currentBatchId)}`;
+  downloadViaFetch(url, `leakradar_batch_${currentBatchId}.csv`);
+}
+
+/** =======================
+ *  GLOBAL refresh + render
+ *  ======================= */
+async function refreshGlobalAll(silent=false){
+  if(!silent) toast("Refreshing GLOBAL...");
+  try{
+    const [stats, act, results] = await Promise.all([
+      apiGET("/api/global/stats"),
+      apiGET("/api/global/activity?limit=120"),
+      apiGET("/api/global/results?limit=250"),
+    ]);
+
+    if(stats?.stats) renderStats(stats.stats);
+    renderActivity(act?.activity || []);
+    globalCache = results?.results || [];
+    renderGlobalTable();
+
+    if(!silent) toast("Updated.");
+  }catch(e){
+    if(!silent) toast("Refresh error: " + String(e.message||e));
+  }
+}
+
+function renderStats(s){
+  $("kTotal").textContent = s.totalScans ?? "—";
+  $("kCritical").textContent = s.riskCount?.CRITICAL ?? "—";
+  $("kHigh").textContent = s.riskCount?.HIGH ?? "—";
+  $("kMed").textContent = s.riskCount?.MEDIUM ?? "—";
+}
+
+function renderActivity(arr){
+  const box = $("activityList");
+  box.innerHTML = "";
+  if(!arr.length){
+    box.innerHTML = `<div class="note">Chưa có activity.</div>`;
+    return;
+  }
+  for(const e of arr.slice(0,50)){
+    const when = tsToTime(e.ts);
+    const line = (e.type==="cmd")
+      ? `🧠 <b>${escapeHtml(e.cmd||"cmd")}</b> ${escapeHtml(e.target||"")} <span class="muted">(${escapeHtml(e.user||"")})</span>`
+      : `📌 <b>${escapeHtml(e.domain||"")}</b> → ${badgeHtml(e.risk)} <span class="muted">(${escapeHtml(e.user||"")})</span>`;
+    const div = document.createElement("div");
+    div.className = "item";
+    div.innerHTML = `
+      <div class="top">
+        <div class="title">${when}</div>
+        <div class="meta mono">${escapeHtml(e.chat||"")}</div>
+      </div>
+      <div class="meta">${line}</div>
+    `;
+    box.appendChild(div);
+  }
+}
+
+function renderGlobalTable(){
+  const tb = $("globalTbody");
+  tb.innerHTML = "";
+
+  const q = $("searchInput").value.trim().toLowerCase();
+  const filtered = (globalCache||[]).filter(r=>{
+    if(currentRiskFilter !== "ALL" && r.risk !== currentRiskFilter) return false;
+    if(!q) return true;
+    const blob = JSON.stringify({
+      domain:r.domain,
+      ip:r.resolvedIp,
+      risk:r.risk,
+      shodan:r.shodan,
+      leaks:r.leaks,
+      sensitive:r.sensitivePaths,
+      meta:r.meta
+    }).toLowerCase();
+    return blob.includes(q);
+  });
+
+  if(!filtered.length){
+    tb.innerHTML = `<tr><td colspan="6" class="muted">No results (after filter).</td></tr>`;
+    return;
+  }
+
+  for(const r of filtered.slice(0,250)){
+    const time = tsToTime(r.ts || r.meta?.at);
+    const ports = (r.shodan?.ports||[]).slice(0,18).join(", ");
+    const ip = r.resolvedIp ? `<div class="mono">${escapeHtml(r.resolvedIp)}</div>` : `<div class="muted">—</div>`;
+    const portHtml = ports ? `<div class="mono muted">${escapeHtml(ports)}</div>` : `<div class="muted">—</div>`;
+
+    const leaks = (r.leaks||[]).slice(0,4).map(f=>`<div class="mono">• ${escapeHtml(f.sev)} ${escapeHtml(f.path)}</div>`).join("");
+    const sens = (r.sensitivePaths||[]).slice(0,3).map(s=>`<div class="mono muted">• ${escapeHtml(s.path)} (${s.status})</div>`).join("");
+    const findings = leaks || sens || `<div class="muted">—</div>`;
+
+    const meta = r.meta || {};
+    const metaHtml = `
+      <div class="mono muted">src=${escapeHtml(meta.source||"")}</div>
+      <div class="mono muted">${escapeHtml(meta.user||"")}</div>
+      <div class="mono muted">${escapeHtml(meta.chat||"")}</div>
+    `;
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="mono">${escapeHtml(time)}</td>
+      <td>
+        <div class="title mono">${escapeHtml(r.domain||"")}</div>
+        ${r.shodan?.org ? `<div class="muted mono">${escapeHtml(r.shodan.org)}</div>` : `<div class="muted">—</div>`}
+      </td>
+      <td>${badgeHtml(r.risk)}</td>
+      <td>${ip}${portHtml}</td>
+      <td>${findings}</td>
+      <td>${metaHtml}</td>
+    `;
+    tb.appendChild(tr);
+  }
+}
+
+function renderQuick(r, cached){
+  const ports = (r.shodan?.ports||[]).join(", ");
+  const leaks = (r.leaks||[]).map(f=>`<div class="mono">• <b>${escapeHtml(f.sev)}</b> ${escapeHtml(f.path)} (HTTP ${escapeHtml(f.status||"")})</div>`).join("");
+  const sens  = (r.sensitivePaths||[]).map(s=>`<div class="mono muted">• ${escapeHtml(s.path)} (${escapeHtml(s.status)})</div>`).join("");
+  return `
+    <div class="item">
+      <div class="top">
+        <div class="title mono">${escapeHtml(r.domain||"")}</div>
+        <div class="right">${badgeHtml(r.risk)} <span class="muted" style="margin-left:10px">${cached?"cache":""}</span></div>
+      </div>
+      <div class="meta">
+        <div class="mono muted">IP: ${escapeHtml(r.resolvedIp||"—")}</div>
+        <div class="mono muted">Ports: ${escapeHtml(ports||"—")}</div>
+        ${r.shodan?.org ? `<div class="mono muted">Org: ${escapeHtml(r.shodan.org)}</div>` : ""}
+        ${r.shodan?.asn ? `<div class="mono muted">ASN: ${escapeHtml(r.shodan.asn)}</div>` : ""}
+      </div>
+      <div class="sep"></div>
+      <div class="meta">
+        <div style="font-weight:800;margin-bottom:6px">Findings</div>
+        ${leaks || ""}
+        ${sens || ""}
+        ${(!leaks && !sens) ? `<div class="muted">No findings in MVP probes.</div>` : ""}
+      </div>
+    </div>
+  `;
+}
+
+/** =======================
+ *  CSV exports
+ *  ======================= */
+function exportGlobalCSV(){
+  const url = FIXED_WORKER_URL + `/api/global/export.csv`;
+  downloadViaFetch(url, `leakradar_global.csv`);
+}
+
+async function downloadViaFetch(url, filename){
+  try{
+    const r = await fetch(url, { headers: { "authorization": `Bearer ${DASHBOARD_TOKEN}` } });
+    if(!r.ok) throw new Error("HTTP " + r.status);
+    const blob = await r.blob();
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 800);
+    toast("Downloading: " + filename);
+  }catch(e){
+    toast("Download error: " + String(e.message||e));
+  }
+}
+
+/** =======================
+ *  API helpers
+ *  ======================= */
+async function apiGET(path){
+  const r = await fetch(FIXED_WORKER_URL + path, { headers: { "authorization": `Bearer ${DASHBOARD_TOKEN}` } });
+  const j = await r.json().catch(()=>null);
+  if(!r.ok || !j?.ok) throw new Error(j?.error || ("HTTP "+r.status));
   return j;
 }
 
-function toPairs(obj){
-  return Object.entries(obj||{})
-    .map(([k,v])=>({k, v:Number(v)||0}))
-    .sort((a,b)=>b.v-a.v);
+/** =======================
+ *  Recent targets
+ *  ======================= */
+function getRecent(){
+  try{
+    return JSON.parse(localStorage.getItem("leakradar_recent")||"[]");
+  }catch{ return []; }
 }
-
-function renderList(el, items, fmt){
-  el.innerHTML = "";
-  if(!items.length){
-    el.innerHTML = `<div class="row"><span class="muted">—</span><span class="muted">—</span></div>`;
+function saveRecent(t){
+  const arr = getRecent().filter(x=>x!==t);
+  arr.unshift(t);
+  if(arr.length>12) arr.length=12;
+  localStorage.setItem("leakradar_recent", JSON.stringify(arr));
+}
+function renderRecentChips(){
+  const box = $("recentChips");
+  const arr = getRecent();
+  box.innerHTML = "";
+  if(!arr.length){
+    box.innerHTML = `<span class="muted">—</span>`;
     return;
   }
-  for(const it of items){
-    el.innerHTML += fmt(it);
+  for(const t of arr){
+    const el = document.createElement("span");
+    el.className = "chip";
+    el.textContent = t;
+    el.onclick = ()=>{ $("targetInput").value = t; runScan(); };
+    box.appendChild(el);
   }
 }
 
-function fmtTime(ts){
+/** =======================
+ *  Utils
+ *  ======================= */
+function badgeHtml(risk){
+  const cls = risk==="CRITICAL"?"b-crit":risk==="HIGH"?"b-high":risk==="MEDIUM"?"b-med":"b-ok";
+  return `<span class="badge ${cls}">${escapeHtml(risk||"OK")}</span>`;
+}
+function tsToTime(ts){
+  if(!ts) return "—";
   try{
-    return new Date(ts||Date.now()).toLocaleString("vi-VN");
+    const d = new Date(ts);
+    const pad=(n)=>String(n).padStart(2,"0");
+    return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())} ${pad(d.getDate())}/${pad(d.getMonth()+1)}`;
   }catch{ return "—"; }
 }
-
-function insightFromStats(s){
-  if(!s) return "—";
-  const total = s.totalScans || 0;
-  const rc = s.riskCount || {};
-  const crit = rc.CRITICAL||0, high = rc.HIGH||0, med = rc.MEDIUM||0, ok = rc.OK||0;
-
-  const lines = [];
-  lines.push(`• Tổng scan: ${total}`);
-  lines.push(`• Risk mix: CRIT ${(total?Math.round(crit/total*100):0)}% | HIGH ${(total?Math.round(high/total*100):0)}% | MED ${(total?Math.round(med/total*100):0)}% | OK ${(total?Math.round(ok/total*100):0)}%`);
-
-  const topT = toPairs(s.topTargets).slice(0,3).map(x=>x.k).join(", ");
-  if(topT) lines.push(`• Targets nổi bật: ${topT}`);
-
-  const topL = toPairs(s.topLeaks).slice(0,3).map(x=>x.k).join(", ");
-  if(topL) lines.push(`• Leak paths nổi bật: ${topL}`);
-
-  const last7 = (s.last30||[]).slice(0,7).reduce((a,x)=>a+(x.scans||0),0);
-  lines.push(`• 7 ngày gần nhất: ${last7} scans`);
-
-  lines.push("");
-  lines.push("Gợi ý:");
-  lines.push("• Ưu tiên fix theo Top leak paths (thường là .env/.git/phpinfo).");
-  lines.push("• Nếu CRITICAL tăng: kiểm tra public ports 2375/6379/9200/... và rotate secrets.");
-  return lines.join("\n");
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;" }[m]));
 }
-
-function passesFilter(row){
-  const q = ($("q").value||"").trim().toLowerCase();
-  const risk = ($("risk").value||"").trim();
-  if(risk && String(row.risk||"") !== risk) return false;
-  if(!q) return true;
-
-  const domain = String(row.domain||"").toLowerCase();
-  const ip = String(row.resolvedIp||"").toLowerCase();
-  const user = String(row.meta?.user||"").toLowerCase();
-  const chat = String(row.meta?.chat||"").toLowerCase();
-  const ports = (row.shodan?.ports||[]).join(",");
-  return (
-    domain.includes(q) || ip.includes(q) || user.includes(q) || chat.includes(q) || ports.includes(q)
-  );
+function toast(msg){
+  const t = $("toast");
+  t.textContent = msg;
+  t.style.display = "block";
+  clearTimeout(t._tm);
+  t._tm = setTimeout(()=>t.style.display="none", 2200);
 }
-
-function renderTable(results){
-  const tb = $("tbody");
-  tb.innerHTML = "";
-  if(!results.length){
-    tb.innerHTML = `<tr><td colspan="7" class="muted">Không có dữ liệu.</td></tr>`;
-    return;
-  }
-
-  const filtered = results.filter(passesFilter);
-
-  if(!filtered.length){
-    tb.innerHTML = `<tr><td colspan="7" class="muted">Không có dữ liệu theo filter.</td></tr>`;
-    return;
-  }
-
-  for(const r of filtered.slice(0, 300)){
-    const ports = (r.shodan?.ports||[]).slice(0,10).join(", ");
-    const leakStr = (r.leaks||[]).slice(0,3).map(x=>`${x.sev}:${x.path}`).join(" | ");
-    const leakMore = (r.leaks||[]).length > 3 ? ` (+${(r.leaks||[]).length-3})` : "";
-    const who = `${r.meta?.user || "—"} • ${r.meta?.chat || "—"}`;
-    tb.innerHTML += `
-      <tr>
-        <td class="nowrap muted">${esc(fmtTime(r.meta?.at || r.ts))}</td>
-        <td>
-          <div class="clip"><b>${esc(r.domain||"—")}</b></div>
-        </td>
-        <td class="nowrap">${pill(r.risk||"OK")}</td>
-        <td class="nowrap muted">${esc(r.resolvedIp||"")}</td>
-        <td class="nowrap muted">${esc(ports)}</td>
-        <td class="muted"><span class="clip">${esc(leakStr)}${esc(leakMore)}</span></td>
-        <td class="muted"><span class="clip">${esc(who)}</span></td>
-      </tr>
-    `;
-  }
+function mask(s){
+  const v=String(s||"");
+  if(v.length<=6) return "******";
+  return v.slice(0,3) + "…" + v.slice(-3);
 }
-
-async function refresh(){
-  $("status").textContent = "Đang refresh…";
-  try{
-    const limit = parseInt($("limit").value||"200",10);
-    const [statsR, actR, resR] = await Promise.all([
-      fetchJSON(`/api/global/stats`),
-      fetchJSON(`/api/global/activity?limit=${encodeURIComponent(limit)}`),
-      fetchJSON(`/api/global/results?limit=${encodeURIComponent(limit)}`)
-    ]);
-
-    // Health
-    renderList($("health"), [
-      {k:"stats", v: statsR.ok ? "OK" : "ERR"},
-      {k:"activity", v: actR.ok ? "OK" : "ERR"},
-      {k:"results", v: resR.ok ? "OK" : "ERR"},
-    ], (x)=>`<div class="row"><span class="muted">${esc(x.k)}</span><span>${esc(x.v)}</span></div>`);
-
-    // KPIs + top lists + trend
-    const s = statsR.stats || null;
-    const rc = s?.riskCount || {};
-    $("kTotal").textContent = s?.totalScans ?? "—";
-    $("kCrit").textContent = rc.CRITICAL ?? 0;
-    $("kHigh").textContent = rc.HIGH ?? 0;
-    $("kMed").textContent = rc.MEDIUM ?? 0;
-    $("kOk").textContent = rc.OK ?? 0;
-
-    const tt = toPairs(s?.topTargets).slice(0,10);
-    renderList($("topTargets"), tt, (x)=>`<div class="row"><span class="left">${esc(x.k)}</span><span class="right muted">${x.v}</span></div>`);
-
-    const tl = toPairs(s?.topLeaks).slice(0,10);
-    renderList($("topLeaks"), tl, (x)=>`<div class="row"><span class="left">${esc(x.k)}</span><span class="right muted">${x.v}</span></div>`);
-
-    const tr = (s?.last30 || []).slice(0,14);
-    renderList($("trend"), tr, (x)=>`<div class="row"><span class="left">${esc(x.day)}</span><span class="right muted">${x.scans} scans • ${x.critical} crit</span></div>`);
-
-    // Activity
-    const act = (actR.activity || []).slice(0, 80);
-    renderList($("activity"), act, (e)=>{
-      const t = fmtTime(e.ts);
-      if(e.type==="cmd"){
-        const extra = e.cmd==="bulk" ? `count:${e.count||0}` : `target:${e.target||""}`;
-        return `<div class="row"><span class="left">${esc(t)} • cmd <b>${esc(e.cmd||"")}</b> • ${esc(extra)}</span><span class="right muted">${esc((e.user||"—")+" • "+(e.chat||"—"))}</span></div>`;
-      }
-      if(e.type==="result"){
-        return `<div class="row"><span class="left">${esc(t)} • result • ${esc(e.domain||"")}</span><span class="right">${pill(e.risk||"OK")} <span class="muted">leaks:${Number(e.leaks||0)}</span></span></div>`;
-      }
-      return `<div class="row"><span class="left">${esc(t)} • ${esc(e.type||"evt")}</span><span class="right muted">—</span></div>`;
-    });
-
-    // Results table
-    window.__results = (resR.results || []);
-    renderTable(window.__results);
-
-    // Insight
-    $("insight").textContent = insightFromStats(s);
-
-    $("status").textContent = `OK • global results: ${window.__results.length} • refreshed ${new Date().toLocaleTimeString("vi-VN")}`;
-    toast("Đã refresh.");
-  }catch(e){
-    $("status").textContent = "Lỗi refresh: " + (e.message||e);
-    toast("Lỗi: " + (e.message||e));
-  }
-}
-
-async function triggerBulk(targets){
-  // MVP: giả Telegram update để gọi /bulk
-  const payload = {
-    message: {
-      chat: { id: GLOBAL_CHAT_ID_FOR_TRIGGER },
-      text: "/bulk\n" + targets.join("\n"),
-      from: { username: "dashboard" }
-    }
-  };
-  const r = await fetch(apiBase()+"/telegram",{
-    method:"POST",
-    headers:{ "content-type":"application/json" },
-    body: JSON.stringify(payload)
-  });
-  if(!r.ok) throw new Error("POST /telegram failed: HTTP " + r.status);
-}
-
-async function runScan(){
-  const list = $("targets").value.split(/[\n,]+/).map(x => x.trim()).filter(Boolean);
-  if(!list.length) return toast("Nhập IP/domain trước.");
-  try{
-    $("status").textContent = "Đang gửi scan…";
-    await triggerBulk(list.slice(0,200));
-    toast("Đã gửi scan. Đợi 5–20s rồi Refresh.");
-  }catch(e){
-    toast("Scan lỗi: " + (e.message||e));
-    $("status").textContent = "Scan lỗi: " + (e.message||e);
-  }
-}
-
-async function exportCSV(){
-  try{
-    const href = apiBase() + `/api/global/export.csv`;
-    const r = await fetch(href, { headers: { ...authHeaders() } });
-    if(!r.ok) throw new Error("Export lỗi HTTP " + r.status);
-    const blob = await r.blob();
-    const a=document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `leakradar_global_${Date.now()}.csv`;
-    a.click();
-    toast("Đã tải CSV.");
-  }catch(e){
-    toast("Lỗi export: " + (e.message||e));
-  }
-}
-
-$("btnScan").addEventListener("click", runScan);
-$("btnRefresh").addEventListener("click", refresh);
-$("btnExport").addEventListener("click", exportCSV);
-
-// Re-render table on filter change (no extra API calls)
-$("q").addEventListener("input", ()=>{ renderTable(window.__results||[]); });
-$("risk").addEventListener("change", ()=>{ renderTable(window.__results||[]); });
-$("limit").addEventListener("change", ()=>{ refresh().catch(()=>{}); });
-
-// auto refresh
-refresh();
-setInterval(()=> refresh().catch(()=>{}), 12000);
 </script>
 </body>
 </html>
