@@ -1,316 +1,471 @@
-    <!doctype html>
-    <html lang="vi">
-    <head>
-      <meta charset="utf-8" />
-      <meta name="viewport" content="width=device-width,initial-scale=1" />
-      <title>LeakRadar — Bulk Dashboard (Domain-first)</title>
-      <style>
-        :root{--bg:#070a14;--card:rgba(255,255,255,.06);--card2:rgba(255,255,255,.035);--line:rgba(255,255,255,.10);--txt:rgba(255,255,255,.92);--muted:rgba(255,255,255,.64);--shadow:0 20px 60px rgba(0,0,0,.45);--r:18px}
-        *{box-sizing:border-box}
-        body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--txt);
-          background:radial-gradient(1200px 800px at 70% -10%, rgba(0,255,255,.12), transparent 60%),
-                   radial-gradient(900px 700px at -10% 20%, rgba(255,0,255,.10), transparent 60%),
-                   radial-gradient(900px 700px at 60% 120%, rgba(0,255,120,.08), transparent 60%), var(--bg);}
-        .wrap{max-width:1200px;margin:0 auto;padding:18px 14px 28px}
-        .top{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:14px}
-        .brand{display:flex;gap:10px;align-items:center;padding:12px 14px;border:1px solid var(--line);border-radius:999px;background:var(--card);box-shadow:var(--shadow)}
-        .dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg, rgba(0,255,255,1), rgba(255,0,255,1));box-shadow:0 0 18px rgba(0,255,255,.35)}
-        .brand h1{font-size:14px;margin:0;letter-spacing:.6px}
-        .brand small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
-        .grid{display:grid;grid-template-columns:1.35fr .65fr;gap:12px}
-        @media(max-width:980px){.grid{grid-template-columns:1fr}}
-        .card{border:1px solid var(--line);background:linear-gradient(180deg, var(--card), var(--card2));border-radius:var(--r);box-shadow:var(--shadow);padding:14px}
-        .card h2{font-size:13px;margin:0 0 10px 0;color:rgba(255,255,255,.86);letter-spacing:.4px}
-        .row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1 1 180px}
-        label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
-        input,select,button,textarea{width:100%;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.25);color:var(--txt);padding:11px 12px;outline:none}
-        textarea{min-height:120px;resize:vertical}
-        button{cursor:pointer;background:linear-gradient(135deg, rgba(0,255,255,.16), rgba(255,0,255,.14));border:1px solid rgba(255,255,255,.20);font-weight:700}
-        button:hover{filter:brightness(1.07)}
-        .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}.btns button{flex:1 1 160px}
-        .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}@media(max-width:760px){.kpis{grid-template-columns:repeat(2,1fr)}}
-        .kpi{padding:12px;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18)}
-        .kpi b{display:block;font-size:16px}.kpi span{display:block;color:var(--muted);font-size:12px;margin-top:4px}
-        .bar{height:10px;border-radius:999px;background:rgba(255,255,255,.10);overflow:hidden;margin-top:10px;border:1px solid rgba(255,255,255,.12)}.bar>i{display:block;height:100%;width:0%;background:linear-gradient(90deg, rgba(0,255,255,.85), rgba(255,0,255,.75))}
-        .table{margin-top:12px;border:1px solid rgba(255,255,255,.12);border-radius:16px;overflow:hidden}
-        .thead,.trow{display:grid;grid-template-columns:1.2fr .9fr .65fr 1.35fr 1fr .7fr;gap:10px;align-items:center;padding:10px 12px}
-        .thead{background:rgba(255,255,255,.06);color:rgba(255,255,255,.72);font-size:12px}
-        .trow{border-top:1px solid rgba(255,255,255,.10);font-size:13px}
-        .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.18);font-size:12px;font-weight:800;letter-spacing:.2px}
-        .crit{background:rgba(255,0,80,.14)}.high{background:rgba(255,160,0,.14)}.med{background:rgba(255,255,255,.10)}.ok{background:rgba(0,255,160,.10)}
-        .muted{color:var(--muted)}.click{cursor:pointer}
-        .details{margin-top:10px;border-top:1px dashed rgba(255,255,255,.14);padding-top:10px;color:rgba(255,255,255,.80);font-size:13px;line-height:1.45;white-space:pre-wrap}
-        .toast{position:fixed;left:12px;right:12px;bottom:14px;max-width:1200px;margin:0 auto;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.45);display:none}
-      </style>
-    </head>
-    <body>
-      <div class="wrap">
-        <div class="top">
-          <div class="brand"><div class="dot"></div><div><h1>LeakRadar — Bulk Dashboard</h1><small>Domain-first • Shodan + leak paths • Export CSV</small></div></div>
-          <div class="muted" id="clock"></div>
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LeakRadar — Quick Scan</title>
+  <style>
+    :root{
+      --bg:#070a14;--card:rgba(255,255,255,.06);--card2:rgba(255,255,255,.035);
+      --line:rgba(255,255,255,.10);--txt:rgba(255,255,255,.92);--muted:rgba(255,255,255,.64);
+      --shadow:0 20px 60px rgba(0,0,0,.45);--r:18px
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+      color:var(--txt);
+      background:
+        radial-gradient(1200px 800px at 70% -10%, rgba(0,255,255,.12), transparent 60%),
+        radial-gradient(900px 700px at -10% 20%, rgba(255,0,255,.10), transparent 60%),
+        radial-gradient(900px 700px at 60% 120%, rgba(0,255,120,.08), transparent 60%),
+        var(--bg);
+    }
+    .wrap{max-width:1200px;margin:0 auto;padding:18px 14px 28px}
+    .top{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .brand{display:flex;gap:10px;align-items:center;padding:12px 14px;border:1px solid var(--line);border-radius:999px;background:var(--card);box-shadow:var(--shadow)}
+    .dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg, rgba(0,255,255,1), rgba(255,0,255,1));box-shadow:0 0 18px rgba(0,255,255,.35)}
+    .brand h1{font-size:14px;margin:0;letter-spacing:.6px}
+    .brand small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+    .grid{display:grid;grid-template-columns:1.35fr .65fr;gap:12px}
+    @media(max-width:980px){.grid{grid-template-columns:1fr}}
+    .card{border:1px solid var(--line);background:linear-gradient(180deg, var(--card), var(--card2));border-radius:var(--r);box-shadow:var(--shadow);padding:14px}
+    .card h2{font-size:13px;margin:0 0 10px 0;color:rgba(255,255,255,.86);letter-spacing:.4px}
+    label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+    input,select,button,textarea{
+      width:100%;border-radius:12px;border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.25);color:var(--txt);padding:11px 12px;outline:none
+    }
+    textarea{min-height:120px;resize:vertical}
+    button{
+      cursor:pointer;background:linear-gradient(135deg, rgba(0,255,255,.16), rgba(255,0,255,.14));
+      border:1px solid rgba(255,255,255,.20);font-weight:800
+    }
+    button:hover{filter:brightness(1.07)}
+    .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .btns button{flex:1 1 160px}
+    .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:12px}
+    @media(max-width:760px){.kpis{grid-template-columns:repeat(2,1fr)}}
+    .kpi{padding:12px;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.18)}
+    .kpi b{display:block;font-size:16px}.kpi span{display:block;color:var(--muted);font-size:12px;margin-top:4px}
+    .bar{height:10px;border-radius:999px;background:rgba(255,255,255,.10);overflow:hidden;margin-top:10px;border:1px solid rgba(255,255,255,.12)}
+    .bar>i{display:block;height:100%;width:0%;background:linear-gradient(90deg, rgba(0,255,255,.85), rgba(255,0,255,.75))}
+    .table{margin-top:12px;border:1px solid rgba(255,255,255,.12);border-radius:16px;overflow:hidden}
+    .thead,.trow{display:grid;grid-template-columns:1.2fr .9fr .65fr 1.35fr 1fr .7fr;gap:10px;align-items:center;padding:10px 12px}
+    .thead{background:rgba(255,255,255,.06);color:rgba(255,255,255,.72);font-size:12px}
+    .trow{border-top:1px solid rgba(255,255,255,.10);font-size:13px}
+    .pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.18);font-size:12px;font-weight:900;letter-spacing:.2px}
+    .crit{background:rgba(255,0,80,.14)}.high{background:rgba(255,160,0,.14)}.med{background:rgba(255,255,255,.10)}.ok{background:rgba(0,255,160,.10)}
+    .muted{color:var(--muted)}
+    .click{cursor:pointer}
+    .details{margin-top:10px;border-top:1px dashed rgba(255,255,255,.14);padding-top:10px;color:rgba(255,255,255,.80);font-size:13px;line-height:1.45;white-space:pre-wrap;display:none}
+    .toast{position:fixed;left:12px;right:12px;bottom:14px;max-width:1200px;margin:0 auto;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.45);display:none}
+    .hint{font-size:12px;color:var(--muted);line-height:1.6;margin:0}
+    .split{display:flex;gap:10px;flex-wrap:wrap}
+    .split > div{flex:1 1 240px}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">
+        <div class="dot"></div>
+        <div>
+          <h1>LeakRadar — Quick Scan</h1>
+          <small>Internal mode • Domain/IP scan • Results + Export CSV</small>
         </div>
+      </div>
+      <div class="muted" id="clock"></div>
+    </div>
 
-        <div class="grid">
-          <div class="card">
-            <h2>Kết nối</h2>
-            <div class="row">
-              <div><label>Worker URL</label><input id="workerUrl" placeholder="https://your-worker.workers.dev" /></div>
-              <div><label>Chat ID (Telegram)</label><input id="chatId" placeholder="-100xxxxxxxxxx" /></div>
-            </div>
-            <div class="row" style="margin-top:10px">
-              <div><label>Dashboard Token</label><input id="token" placeholder="DASHBOARD_TOKEN" /></div>
-              <div><label>Lọc Risk</label>
-                <select id="riskFilter">
-                  <option value="ALL">Tất cả</option><option value="CRITICAL">CRITICAL</option><option value="HIGH">HIGH</option><option value="MEDIUM">MEDIUM</option><option value="OK">OK</option>
-                </select>
-              </div>
-            </div>
-            <div class="btns"><button id="btnRefresh">🔄 Refresh</button><button id="btnExport">⬇️ Export CSV</button></div>
+    <div class="grid">
+      <div class="card">
+        <h2>Quét nhanh</h2>
 
-            <div style="margin-top:12px" class="kpis">
-              <div class="kpi"><b id="kTotal">—</b><span>Total</span></div>
-              <div class="kpi"><b id="kDone">—</b><span>Done</span></div>
-              <div class="kpi"><b id="kRemaining">—</b><span>Remaining</span></div>
-              <div class="kpi"><b id="kCritical">—</b><span>Critical</span></div>
-              <div class="kpi"><b id="kUniqueIp">—</b><span>Unique IPs</span></div>
+        <div class="split">
+          <div>
+            <label>Nhập IP / Domain (mỗi dòng 1 target)</label>
+            <textarea id="targets" placeholder="27.69.212.72&#10;example.com"></textarea>
+            <div class="btns">
+              <button id="btnScan">🚀 Scan ngay</button>
+              <button id="btnRefresh">🔄 Refresh kết quả</button>
             </div>
-            <div class="bar"><i id="bar"></i></div>
-
-            <div class="table">
-              <div class="thead"><div>Domain</div><div>IP</div><div>Risk</div><div>Ports</div><div>Leaks</div><div>Time</div></div>
-              <div id="rows"></div>
-            </div>
-
-            <div class="details" id="details" style="display:none"></div>
           </div>
 
-          <div class="card">
-            <h2>Gửi batch (/bulk)</h2>
-            <label>Danh sách target (mỗi dòng 1 domain/IP)</label>
-            <textarea id="bulkText" placeholder="example.com
-api.example.com
-1.2.3.4"></textarea>
-            <div class="btns"><button id="btnCopyCmd">📋 Copy lệnh /bulk</button><button id="btnShareTG">📨 Mở Telegram share</button></div>
-            <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:14px 0">
-            <p class="muted" style="margin:0;line-height:1.6">
-              • Click 1 dòng để xem chi tiết leak + Shodan evidence.<br>
-              • Dashboard chỉ đọc dữ liệu KV; scan chạy qua Telegram bot.
+          <div>
+            <label>Access Code (nội bộ)</label>
+            <input id="access" type="password" placeholder="Nhập mã truy cập" />
+            <label style="margin-top:10px">Lọc Risk</label>
+            <select id="riskFilter">
+              <option value="ALL">Tất cả</option>
+              <option value="CRITICAL">CRITICAL</option>
+              <option value="HIGH">HIGH</option>
+              <option value="MEDIUM">MEDIUM</option>
+              <option value="OK">OK</option>
+            </select>
+            <div class="btns">
+              <button id="btnExport">⬇️ Export CSV</button>
+            </div>
+
+            <p class="hint">
+              • Ẩn toàn bộ config (Worker URL / Token / ChatID).<br>
+              • Có allowlist để tránh lạm dụng.<br>
+              • Nếu muốn public thật sự: nên thêm kiểm soát ở Worker (rate limit + auth server-side).
             </p>
           </div>
         </div>
+
+        <div class="kpis">
+          <div class="kpi"><b id="kTotal">—</b><span>Total</span></div>
+          <div class="kpi"><b id="kDone">—</b><span>Done</span></div>
+          <div class="kpi"><b id="kRemaining">—</b><span>Remaining</span></div>
+          <div class="kpi"><b id="kCritical">—</b><span>Critical</span></div>
+          <div class="kpi"><b id="kUniqueIp">—</b><span>Unique IPs</span></div>
+        </div>
+        <div class="bar"><i id="bar"></i></div>
+
+        <div class="table">
+          <div class="thead"><div>Domain</div><div>IP</div><div>Risk</div><div>Ports</div><div>Leaks</div><div>Time</div></div>
+          <div id="rows"></div>
+        </div>
+
+        <div class="details" id="details"></div>
       </div>
 
-      <div class="toast" id="toast"></div>
+      <div class="card">
+        <h2>Trạng thái</h2>
+        <p class="hint" id="statusText">Chưa có thao tác.</p>
+        <hr style="border:none;border-top:1px solid rgba(255,255,255,.12);margin:14px 0">
+        <p class="hint">
+          Gợi ý vận hành:<br>
+          • Team nội bộ dùng chung 1 dashboard + 1 access code.<br>
+          • Kết quả lưu KV theo chatId, refresh là thấy.<br>
+          • Nếu bạn muốn multi-tenant (mỗi khách 1 workspace), mình có thể thiết kế lại KV keys theo tenantId.
+        </p>
+      </div>
+    </div>
+  </div>
 
-      <script>
-        const $ = (id)=>document.getElementById(id);
-        setInterval(()=>{ $("clock").textContent = new Date().toLocaleString("vi-VN"); }, 800);
+  <div class="toast" id="toast"></div>
 
-        const storeKeys = ["workerUrl","chatId","token","riskFilter"];
-        storeKeys.forEach(k=>{
-          const v = localStorage.getItem("lr:"+k);
-          if(v && $(k)) $(k).value = v;
-          if($(k)) $(k).addEventListener("input", ()=> localStorage.setItem("lr:"+k, $(k).value));
-          if($(k)) $(k).addEventListener("change", ()=> localStorage.setItem("lr:"+k, $(k).value));
-        });
+<script>
+/** =========================
+ *  FIXED CONFIG (ADMIN SET)
+ *  =========================
+ *  Thay 4 giá trị dưới đây rồi upload dashboard là chạy.
+ */
+const FIXED_WORKER_URL = "https://leakradar.starlinksatellitewifi.workers.dev";
+const FIXED_CHAT_ID    = "-1002345678901";
+const FIXED_TOKEN      = "dash_9k23jf8sk29dk";
 
-        function toast(msg){
-          const t=$("toast");
-          t.textContent=msg;
-          t.style.display="block";
-          clearTimeout(window.__t);
-          window.__t=setTimeout(()=>t.style.display="none", 2600);
-        }
+/**
+ * Access code nội bộ (client-side gate).
+ * Lưu ý: gate này chỉ nằm trên dashboard. Muốn chặn chắc chắn, nên check access code tại Worker.
+ */
+const ACCESS_CODE = "run_82kdk29skd";
 
-        function apiBase(){
-          const base = ($("workerUrl").value||"").trim().replace(/\/+$/,"");
-          if(!base) throw new Error("Thiếu Worker URL");
-          return base;
-        }
-        function authHeader(){
-          const tok = ($("token").value||"").trim();
-          if(!tok) throw new Error("Thiếu Dashboard Token");
-          return { "Authorization": "Bearer " + tok };
-        }
-        function chatId(){
-          const c = ($("chatId").value||"").trim();
-          if(!c) throw new Error("Thiếu chatId");
-          return c;
-        }
-        async function getJSON(path){
-          const r = await fetch(apiBase()+path, { headers: { ...authHeader() } });
-          const j = await r.json().catch(()=>({ok:false,error:"bad json"}));
-          if(!r.ok) throw new Error(j.error || ("HTTP "+r.status));
-          return j;
-        }
+/**
+ * Allowlist: giảm rủi ro bị lạm dụng.
+ * - DOMAIN_SUFFIX: chỉ cho phép scan domain kết thúc bằng các suffix này.
+ * - IP_CIDR: chỉ cho phép scan các IP thuộc CIDR bạn quản lý.
+ *
+ * Nếu bạn muốn "không giới hạn" cho nội bộ, bạn có thể để [] (rỗng),
+ * nhưng KHÔNG nên public dashboard.
+ */
+const DOMAIN_SUFFIX_ALLOWLIST = [
+  // ".yourcompany.com",
+  // ".yourcustomer.vn"
+];
+const IP_CIDR_ALLOWLIST = [
+  // "27.69.0.0/16",
+  // "203.0.113.0/24"
+];
 
-        function escapeHtml(s){
-          return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
-        }
-        function pill(risk){
-          const cls = risk==="CRITICAL"?"crit":risk==="HIGH"?"high":risk==="MEDIUM"?"med":"ok";
-          return `<span class="pill ${cls}">${risk}</span>`;
-        }
-        function fmtTime(ts){
-          if(!ts) return "—";
-          return new Date(ts).toLocaleTimeString("vi-VN",{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-        }
-        function summarizeLeaks(leaks){
-          if(!leaks || !leaks.length) return `<span class="muted">—</span>`;
-          const top = leaks.slice(0,3).map(f=>`${f.sev}:${f.path}`).join(" • ");
-          const more = leaks.length>3 ? ` +${leaks.length-3}` : "";
-          return escapeHtml(top + more);
-        }
-        function summarizePorts(sh){
-          const ports = sh?.ports || [];
-          if(!ports.length) return `<span class="muted">—</span>`;
-          return escapeHtml(ports.slice(0,18).join(", ") + (ports.length>18 ? "…" : ""));
-        }
-        function applyFilter(results){
-          const f = $("riskFilter").value;
-          if(f==="ALL") return results;
-          return results.filter(x=>x.risk===f);
-        }
-        function computeUniqueIps(results){
-          const s = new Set();
-          for(const r of results){ if(r.resolvedIp) s.add(r.resolvedIp); }
-          return s.size;
-        }
+// ========= UI utils =========
+const $ = (id)=>document.getElementById(id);
+setInterval(()=>{ $("clock").textContent = new Date().toLocaleString("vi-VN"); }, 800);
 
-        function renderTable(results){
-          const rows = $("rows");
-          rows.innerHTML = "";
-          const filtered = applyFilter(results);
-          filtered.sort((a,b)=> (b.ts||0)-(a.ts||0)).forEach(r=>{
-            const el = document.createElement("div");
-            el.className="trow click";
-            el.innerHTML = `
-              <div>${escapeHtml(r.domain||"—")}</div>
-              <div class="muted">${escapeHtml(r.resolvedIp||"—")}</div>
-              <div>${pill(r.risk||"OK")}</div>
-              <div>${summarizePorts(r.shodan)}</div>
-              <div>${summarizeLeaks(r.leaks)}</div>
-              <div class="muted">${fmtTime(r.ts)}</div>`;
-            el.addEventListener("click", ()=> showDetails(r));
-            rows.appendChild(el);
-          });
-          if(!filtered.length){
-            const el=document.createElement("div");
-            el.className="trow";
-            el.innerHTML=`<div class="muted" style="grid-column:1/-1">Không có dữ liệu theo filter.</div>`;
-            rows.appendChild(el);
-          }
-        }
+function toast(msg){
+  const t=$("toast");
+  t.textContent=msg;
+  t.style.display="block";
+  clearTimeout(window.__t);
+  window.__t=setTimeout(()=>t.style.display="none", 2600);
+}
+function setStatus(msg){ $("statusText").textContent = msg; }
 
-        function showDetails(r){
-          const d=$("details");
-          const lines=[];
-          lines.push(`🎯 Domain: ${r.domain||"—"}`);
-          lines.push(`📍 IP: ${r.resolvedIp||"—"}`);
-          lines.push(`⚠️ Risk: ${r.risk||"OK"}`);
-          lines.push("");
-          if(r.shodan){
-            lines.push("🛰 Shodan intel:");
-            if(r.shodan.org) lines.push(`• Org: ${r.shodan.org}`);
-            if(r.shodan.asn) lines.push(`• ASN: ${r.shodan.asn}`);
-            if(r.shodan.country) lines.push(`• Country: ${r.shodan.country}`);
-            if(r.shodan.ports?.length) lines.push(`• Ports: ${r.shodan.ports.join(", ")}`);
-            if(r.shodan.tags?.length) lines.push(`• Tags: ${r.shodan.tags.join(", ")}`);
-            if(r.shodan.vulns?.length) lines.push(`• Vulns: ${r.shodan.vulns.slice(0,20).join(", ")}${r.shodan.vulns.length>20?"…":""}`);
-            if(r.shodan.bannersTop?.length){
-              lines.push(""); lines.push("Top services:");
-              r.shodan.bannersTop.forEach(b=>{
-                const p = b.product ? `${b.product}${b.version ? " "+b.version : ""}` : (b.http?.server || "service");
-                lines.push(`• ${b.port}/${b.transport||"tcp"} — ${p}`);
-                if(b.http?.title) lines.push(`  ↳ title: ${b.http.title}`);
-              });
-            }
-            if(r.shodan.error){ lines.push(""); lines.push(`ℹ️ Shodan note: ${r.shodan.error}`); }
-            lines.push("");
-          }
-          if(r.sensitivePaths && r.sensitivePaths.length){
-            lines.push("🧩 Sensitive endpoints (defensive):");
-            r.sensitivePaths.slice(0,10).forEach(s=>{ lines.push(`• ${s.path} (HTTP ${s.status})`); if(s.url) lines.push(`  ↳ ${s.url}`); });
-            if(r.sensitivePaths.length>10) lines.push(`… và ${r.sensitivePaths.length-10} mục khác.`);
-            lines.push("");
-          }
-          if(!r.leaks || !r.leaks.length){
-            lines.push("✅ Không phát hiện leak paths (bot chỉ probe khi có web ports).");
-          } else {
-            lines.push("🔓 Leak findings:");
-            r.leaks.forEach(f=>{
-              lines.push(`• [${f.sev}] ${f.path} (HTTP ${f.status})`);
-              if(f.url) lines.push(`  ↳ ${f.url}`);
-              if(f.evidence) lines.push(`  ↳ evidence: ${String(f.evidence).replace(/\s+/g," ").trim()}`);
-            });
-          }
-          lines.push(""); lines.push("✅ Fix nhanh:");
-          lines.push("1) Block /.env và /.git/* (Nginx/Apache/WAF)");
-          lines.push("2) Rotate secrets nếu nghi lộ");
-          lines.push("3) Tắt swagger/openapi public nếu không cần");
-          d.style.display="block";
-          d.textContent=lines.join("
-");
-          window.scrollTo({top: document.body.scrollHeight, behavior:"smooth"});
-        }
+function pill(risk){
+  const cls = risk==="CRITICAL"?"crit":risk==="HIGH"?"high":risk==="MEDIUM"?"med":"ok";
+  return `<span class="pill ${cls}">${risk}</span>`;
+}
+function fmtTime(ts){
+  if(!ts) return "—";
+  return new Date(ts).toLocaleTimeString("vi-VN",{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+function escapeHtml(s){
+  return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+                  .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+}
+function summarizeLeaks(leaks){
+  if(!leaks || !leaks.length) return `<span class="muted">—</span>`;
+  const top = leaks.slice(0,3).map(f=>`${f.sev}:${f.path}`).join(" • ");
+  const more = leaks.length>3 ? ` +${leaks.length-3}` : "";
+  return escapeHtml(top + more);
+}
+function summarizePorts(sh){
+  const ports = sh?.ports || [];
+  if(!ports.length) return `<span class="muted">—</span>`;
+  return escapeHtml(ports.slice(0,18).join(", ") + (ports.length>18 ? "…" : ""));
+}
+function applyFilter(results){
+  const f = $("riskFilter").value;
+  if(f==="ALL") return results;
+  return results.filter(x=>x.risk===f);
+}
+function computeUniqueIps(results){
+  const s = new Set();
+  for(const r of results){ if(r.resolvedIp) s.add(r.resolvedIp); }
+  return s.size;
+}
 
-        async function refresh(){
-          try{
-            const cid=chatId();
-            const st = await getJSON(`/api/bulk/status?chatId=${encodeURIComponent(cid)}`);
-            const rs = await getJSON(`/api/bulk/results?chatId=${encodeURIComponent(cid)}`);
-            const total = st.progress?.total ?? (rs.results?.length ?? 0);
-            const done = st.progress?.done ?? (rs.results?.length ?? 0);
-            const remaining = st.remaining ?? 0;
-            $("kTotal").textContent = total ?? "—";
-            $("kDone").textContent = done ?? "—";
-            $("kRemaining").textContent = remaining ?? "—";
-            $("kCritical").textContent = (rs.results||[]).filter(x=>x.risk==="CRITICAL").length;
-            $("kUniqueIp").textContent = computeUniqueIps(rs.results||[]);
-            const pct = total ? Math.min(100, Math.round((done/total)*100)) : 0;
-            $("bar").style.width = pct + "%";
-            renderTable(rs.results||[]);
-            toast("Đã refresh dữ liệu.");
-          }catch(e){ toast("Lỗi: " + (e.message||e)); }
-        }
+// ========= Auth & API =========
+function authHeader(){
+  return { "Authorization": "Bearer " + FIXED_TOKEN };
+}
+function apiBase(){
+  return FIXED_WORKER_URL.replace(/\/+$/,"");
+}
+function okAccess(){
+  return ($("access").value || "").trim() === ACCESS_CODE;
+}
+async function getJSON(path){
+  const r = await fetch(apiBase()+path, { headers: { ...authHeader() } });
+  const j = await r.json().catch(()=>({ok:false,error:"bad json"}));
+  if(!r.ok) throw new Error(j.error || ("HTTP "+r.status));
+  return j;
+}
 
-        $("btnRefresh").addEventListener("click", refresh);
+// ========= Allowlist checks =========
+function isIPv4(s){
+  return /^(\d{1,3}\.){3}\d{1,3}$/.test(s) && s.split(".").every(n => +n >= 0 && +n <= 255);
+}
+function parseTargets(text){
+  return text.split(/[\n,]+/).map(x=>x.trim()).filter(Boolean);
+}
+function domainAllowed(host){
+  if(!DOMAIN_SUFFIX_ALLOWLIST.length) return true;
+  const h = host.toLowerCase();
+  return DOMAIN_SUFFIX_ALLOWLIST.some(suf => h.endsWith(suf.toLowerCase()));
+}
+function ipToInt(ip){
+  return ip.split(".").reduce((acc,oct)=> (acc<<8) + (+oct), 0) >>> 0;
+}
+function cidrAllowed(ip){
+  if(!IP_CIDR_ALLOWLIST.length) return true;
+  const x = ipToInt(ip);
+  for(const cidr of IP_CIDR_ALLOWLIST){
+    const [net, bitsStr] = cidr.split("/");
+    const bits = parseInt(bitsStr,10);
+    if(!isIPv4(net) || isNaN(bits) || bits<0 || bits>32) continue;
+    const mask = bits===0 ? 0 : (0xFFFFFFFF << (32-bits)) >>> 0;
+    const n = ipToInt(net);
+    if((x & mask) === (n & mask)) return true;
+  }
+  return false;
+}
+function targetAllowed(t){
+  // treat as host (ip or domain)
+  if(isIPv4(t)) return cidrAllowed(t);
+  // if user paste url, strip scheme
+  let host = t;
+  try{
+    if(!/^https?:\/\//i.test(host)) host = "https://" + host;
+    host = new URL(host).hostname;
+  }catch{}
+  return domainAllowed(host);
+}
 
-        $("btnExport").addEventListener("click", async ()=>{
-          try{
-            const cid=chatId();
-            const href = apiBase() + `/api/bulk/export.csv?chatId=${encodeURIComponent(cid)}`;
-            const r = await fetch(href, { headers: { ...authHeader() } });
-            if(!r.ok) throw new Error("Export lỗi HTTP " + r.status);
-            const blob = await r.blob();
-            const a=document.createElement("a");
-            a.href = URL.createObjectURL(blob);
-            a.download = `leakradar_domain_${cid}_${Date.now()}.csv`;
-            a.click();
-            toast("Đã tải CSV.");
-          }catch(e){ toast("Lỗi export: " + (e.message||e)); }
-        });
+// ========= Render =========
+function showDetails(r){
+  const d=$("details");
+  const lines=[];
+  lines.push(`🎯 Domain: ${r.domain||"—"}`);
+  lines.push(`📍 IP: ${r.resolvedIp||"—"}`);
+  lines.push(`⚠️ Risk: ${r.risk||"OK"}`);
+  lines.push("");
 
-        function buildBulkCommand(){
-          const lines = ($("bulkText").value||"").trim().split("
-").map(x=>x.trim()).filter(Boolean);
-          if(!lines.length) throw new Error("Chưa có target trong ô danh sách.");
-          return "/bulk
-" + lines.slice(0,200).join("
-");
-        }
+  if(r.shodan){
+    lines.push("🛰 Shodan intel:");
+    if(r.shodan.org) lines.push(`• Org: ${r.shodan.org}`);
+    if(r.shodan.asn) lines.push(`• ASN: ${r.shodan.asn}`);
+    if(r.shodan.country) lines.push(`• Country: ${r.shodan.country}`);
+    if(r.shodan.ports?.length) lines.push(`• Ports: ${r.shodan.ports.join(", ")}`);
+    if(r.shodan.tags?.length) lines.push(`• Tags: ${r.shodan.tags.join(", ")}`);
+    if(r.shodan.vulns?.length) lines.push(`• Vulns: ${r.shodan.vulns.slice(0,20).join(", ")}${r.shodan.vulns.length>20?"…":""}`);
+    if(r.shodan.bannersTop?.length){
+      lines.push(""); lines.push("Top services:");
+      r.shodan.bannersTop.forEach(b=>{
+        const p = b.product ? `${b.product}${b.version ? " "+b.version : ""}` : (b.http?.server || "service");
+        lines.push(`• ${b.port}/${b.transport||"tcp"} — ${p}`);
+        if(b.http?.title) lines.push(`  ↳ title: ${b.http.title}`);
+      });
+    }
+    if(r.shodan.error){ lines.push(""); lines.push(`ℹ️ Shodan note: ${r.shodan.error}`); }
+    lines.push("");
+  }
 
-        $("btnCopyCmd").addEventListener("click", async ()=>{
-          try{ const cmd=buildBulkCommand(); await navigator.clipboard.writeText(cmd); toast("Đã copy lệnh /bulk."); }
-          catch(e){ toast("Không copy được: " + (e.message||e)); }
-        });
+  if(r.sensitivePaths && r.sensitivePaths.length){
+    lines.push("🧩 Sensitive endpoints (defensive):");
+    r.sensitivePaths.slice(0,10).forEach(s=>{
+      lines.push(`• ${s.path} (HTTP ${s.status})`);
+      if(s.url) lines.push(`  ↳ ${s.url}`);
+    });
+    if(r.sensitivePaths.length>10) lines.push(`… và ${r.sensitivePaths.length-10} mục khác.`);
+    lines.push("");
+  }
 
-        $("btnShareTG").addEventListener("click", ()=>{
-          try{ const cmd=buildBulkCommand(); window.open("https://t.me/share/url?url=&text="+encodeURIComponent(cmd), "_blank"); }
-          catch(e){ toast("Lỗi: " + (e.message||e)); }
-        });
+  if(!r.leaks || !r.leaks.length){
+    lines.push("✅ Không phát hiện leak paths (bot chỉ probe khi có web ports).");
+  } else {
+    lines.push("🔓 Leak findings:");
+    r.leaks.forEach(f=>{
+      lines.push(`• [${f.sev}] ${f.path} (HTTP ${f.status})`);
+      if(f.url) lines.push(`  ↳ ${f.url}`);
+      if(f.evidence) lines.push(`  ↳ evidence: ${String(f.evidence).replace(/\s+/g," ").trim()}`);
+    });
+  }
 
-        setInterval(()=>{ refresh().catch(()=>{}); }, 12000);
-      </script>
-    </body>
-    </html>
+  lines.push(""); lines.push("✅ Fix nhanh:");
+  lines.push("1) Block /.env và /.git/* (Nginx/Apache/WAF)");
+  lines.push("2) Rotate secrets nếu nghi lộ");
+  lines.push("3) Tắt swagger/openapi public nếu không cần");
+
+  d.style.display="block";
+  d.textContent=lines.join("\n");
+  window.scrollTo({top: document.body.scrollHeight, behavior:"smooth"});
+}
+
+function renderTable(results){
+  const rows = $("rows");
+  rows.innerHTML = "";
+  const filtered = applyFilter(results);
+  filtered.sort((a,b)=> (b.ts||0)-(a.ts||0)).forEach(r=>{
+    const el = document.createElement("div");
+    el.className="trow click";
+    el.innerHTML = `
+      <div>${escapeHtml(r.domain||"—")}</div>
+      <div class="muted">${escapeHtml(r.resolvedIp||"—")}</div>
+      <div>${pill(r.risk||"OK")}</div>
+      <div>${summarizePorts(r.shodan)}</div>
+      <div>${summarizeLeaks(r.leaks)}</div>
+      <div class="muted">${fmtTime(r.ts)}</div>`;
+    el.addEventListener("click", ()=> showDetails(r));
+    rows.appendChild(el);
+  });
+  if(!filtered.length){
+    const el=document.createElement("div");
+    el.className="trow";
+    el.innerHTML=`<div class="muted" style="grid-column:1/-1">Không có dữ liệu theo filter.</div>`;
+    rows.appendChild(el);
+  }
+}
+
+async function refresh(){
+  try{
+    setStatus("Đang refresh dữ liệu…");
+    const cid = encodeURIComponent(FIXED_CHAT_ID);
+    const st = await getJSON(`/api/bulk/status?chatId=${cid}`);
+    const rs = await getJSON(`/api/bulk/results?chatId=${cid}`);
+
+    const total = st.progress?.total ?? (rs.results?.length ?? 0);
+    const done  = st.progress?.done  ?? (rs.results?.length ?? 0);
+    const remaining = st.remaining ?? 0;
+
+    $("kTotal").textContent = total ?? "—";
+    $("kDone").textContent = done ?? "—";
+    $("kRemaining").textContent = remaining ?? "—";
+    $("kCritical").textContent = (rs.results||[]).filter(x=>x.risk==="CRITICAL").length;
+    $("kUniqueIp").textContent = computeUniqueIps(rs.results||[]);
+
+    const pct = total ? Math.min(100, Math.round((done/total)*100)) : 0;
+    $("bar").style.width = pct + "%";
+
+    renderTable(rs.results||[]);
+    toast("Đã refresh.");
+    setStatus(`OK • ${done}/${total} done • remaining ${remaining}`);
+  }catch(e){
+    toast("Lỗi: " + (e.message||e));
+    setStatus("Lỗi refresh: " + (e.message||e));
+  }
+}
+
+async function exportCSV(){
+  try{
+    if(!okAccess()) return toast("Sai Access Code.");
+    const cid = encodeURIComponent(FIXED_CHAT_ID);
+    const href = apiBase() + `/api/bulk/export.csv?chatId=${cid}`;
+    const r = await fetch(href, { headers: { ...authHeader() } });
+    if(!r.ok) throw new Error("Export lỗi HTTP " + r.status);
+    const blob = await r.blob();
+    const a=document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `leakradar_${Date.now()}.csv`;
+    a.click();
+    toast("Đã tải CSV.");
+  }catch(e){
+    toast("Lỗi export: " + (e.message||e));
+  }
+}
+
+// ========= Scan trigger =========
+// Lưu ý: Worker hiện tại chạy scan qua Telegram webhook (/telegram).
+// Dashboard sẽ gửi một “update giả lập” vào /telegram để kích hoạt /bulk.
+// Cái này dùng nội bộ OK, nhưng nếu public thì nên chuyển sang endpoint /api/scan có auth server-side.
+async function triggerBulk(targets){
+  const payload = {
+    message: {
+      chat: { id: FIXED_CHAT_ID },
+      text: "/bulk\n" + targets.join("\n")
+    }
+  };
+  await fetch(apiBase()+"/telegram",{
+    method:"POST",
+    headers:{ "content-type":"application/json" },
+    body: JSON.stringify(payload)
+  });
+}
+
+async function runScan(){
+  try{
+    if(!okAccess()) return toast("Sai Access Code.");
+    const list = parseTargets($("targets").value);
+    if(!list.length) return toast("Nhập IP/domain trước.");
+
+    // allowlist enforcement
+    const denied = list.filter(t => !targetAllowed(t));
+    if(denied.length){
+      return toast("Target không thuộc allowlist: " + denied.slice(0,3).join(", ") + (denied.length>3 ? "…" : ""));
+    }
+
+    setStatus("Đã gửi scan. Đang chạy batch…");
+    toast("Đã gửi scan. Đợi 5–15s rồi Refresh.");
+
+    // Trigger as /bulk to reuse worker flow
+    await triggerBulk(list.slice(0,200));
+
+  }catch(e){
+    toast("Lỗi scan: " + (e.message||e));
+  }
+}
+
+// ========= events =========
+$("btnScan").addEventListener("click", runScan);
+$("btnRefresh").addEventListener("click", refresh);
+$("btnExport").addEventListener("click", exportCSV);
+
+// Auto refresh every 12s
+setInterval(()=>{ refresh().catch(()=>{}); }, 12000);
+</script>
+</body>
+</html>
